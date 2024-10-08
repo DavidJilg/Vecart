@@ -1,0 +1,34 @@
+{
+    "parallelRoutines" : 5,
+    "outputPath": "/output/ellie3.svg",
+    "artworkWidth" : 63,
+    "artworkHeight" : 92,
+    "darknessThreshold":   18,
+	"shapeDarknessFactor": 40,
+	"whitePunishmentBoundry": 5,
+	"whitePunishmentValue": 0.85,
+    "randomSeed": 1701,
+	"shapeAngleDeviationStep": 10,
+    "processingDpi": 25,
+	"outputDpi": 72,
+    "shapes": [
+        {
+            "type": "rectangle",
+            "topLeft": [0,0],
+            "width": 2,
+            "height": 2
+        },
+        {
+            "type": "rectangle",
+            "topLeft": [0,0],
+            "width": 4,
+            "height": 4
+        },
+        {
+            "type": "rectangle",
+            "topLeft": [0,0],
+            "width": 8,
+            "height": 8
+        }
+    ]
+}

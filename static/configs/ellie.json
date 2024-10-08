@@ -1,0 +1,21 @@
+{
+    "parallelRoutines" : 5,
+    "outputPath": "ellie.svg",
+    "shapes": [
+        {
+            "type": "line",
+            "p1": [0,0],
+            "p2": [0,2]
+        },
+        {
+            "type": "line",
+            "p1": [0,0],
+            "p2": [0,4]
+        },
+        {
+            "type": "line",
+            "p1": [0,0],
+            "p2": [0,8]
+        }
+    ]
+}

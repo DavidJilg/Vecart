@@ -1,0 +1,23 @@
+{
+    "outputPath": "/examples/text/ellie_text2.svg",
+    "shapes": [
+        {
+            "type": "text",
+            "center": [0,0],
+            "lineHeight": 2,
+            "text": "DJ"
+        },
+        {
+            "type": "text",
+            "center": [0,0],
+            "lineHeight": 4,
+            "text": "DJ"
+        },
+        {
+            "type": "text",
+            "center": [0,0],
+            "lineHeight": 8,
+            "text": "DJ"
+        }
+    ]
+}

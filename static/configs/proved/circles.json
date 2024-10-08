@@ -1,0 +1,32 @@
+{
+    "parallelRoutines" : 5,
+    "outputPath": "/output/circleTest.svg",
+    "artworkWidth" : 63,
+    "artworkHeight" : 92,
+    "darknessThreshold":   18,
+	"shapeDarknessFactor": 40,
+	"whitePunishmentBoundry": 5,
+	"whitePunishmentValue": 0.85,
+    "randomSeed": 1701,
+	"shapeAngleDeviationStep": 10,
+    "processingDpi": 25,
+    "shapeRefinement": true,
+	"outputDpi": 72,
+    "shapes": [
+        {
+            "type": "circle",
+            "center": [0,0],
+            "radius": 1
+        },
+        {
+            "type": "circle",
+            "center": [0,0],
+            "radius": 2
+        },
+        {
+            "type": "circle",
+            "center": [0,0],
+            "radius": 4
+        }
+    ]
+}

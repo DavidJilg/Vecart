@@ -1,0 +1,170 @@
+{
+    "inputPath": "/some/path/picture.png",
+	"outputPath": "/some/path/art.svg",  
+	"artworkWidth": 1,  
+	"artworkHeight": 2, 
+	"quadrantWidth": 3,          
+	"quadrantHeight": 4,         
+	"darknessThreshold": 5,      
+	"shapeDarknessFactor": 6,    
+	"whitePunishmentBoundry": 7, 
+	"whitePunishmentValue": 8.5,   
+	"randomSeed": 9,             
+	"parallelRoutines": 10,       
+	"highPrecisionShapePositioning": true,            
+	"shapeRefinement": false,            
+	"shapeRefinementIterations": 16,            
+	"shapeRefinementPercentage": 16.5,            
+	"smoothEdges": false,            
+	"combineShapes": false,          
+	"combineShapesTolerance": 11.5,  
+	"combineShapesIterations": 12, 
+	"strokeWidth": 13.5,            
+	"strokeColor": "red",            
+	"reverseShapeOrder": true,      
+	"configInOutput": false,         
+	"processingDpi": 14,          
+	"outputDpi": 15,              
+	"debug": true,                  
+	"timeout": 20,                  
+    "shapeAngleDeviationRange": 16, 
+    "shapeAngleDeviationStep": 17.5,
+	"shapes": [
+        {
+            "type": "line",
+            "p1": [0,0],
+            "p2": [0,2]
+        },
+        {
+            "type": "line",
+            "p1": [0,0],
+            "p2": [0,4]
+        },
+        {
+            "type": "line",
+            "p1": [0,0],
+            "p2": [0,8]
+        },
+        {
+            "type": "polyline",
+            "points": [[0,0], [0,2], [1,2]]
+        },
+		{
+            "type": "polygon",
+            "points": [[-1,0], [-0.5, 1], [0.5, 1], [1,0]]
+        },
+        {
+            "type": "polygon",
+            "points": [[-2,0], [-1, 2], [1, 2], [2,0]]
+        },
+        {
+            "type": "polygon",
+            "points": [[-3,0], [-2, 3], [2, 3], [3,0]]
+        },
+		{
+            "type": "rectangle",
+            "topLeft": [0,0],
+            "width": 2,
+            "height": 2
+        },
+        {
+            "type": "rectangle",
+            "topLeft": [0,0],
+            "width": 4,
+            "height": 4
+        },
+        {
+            "type": "rectangle",
+            "topLeft": [0,0],
+            "width": 8,
+            "height": 8
+        },
+		{
+            "type": "triangle",
+            "p1": [0,0],
+            "p2": [1,1],
+            "p3": [0,2]
+        },
+        {
+            "type": "triangle",
+            "p1": [0,0],
+            "p2": [2,2],
+            "p3": [0,4]
+        },
+        {
+            "type": "triangle",
+            "p1": [0,0],
+            "p2": [4,4],
+            "p3": [0,8]
+        },
+		{
+            "type": "circle",
+            "center": [0,0],
+            "radius": 1
+        },
+        {
+            "type": "circle",
+            "center": [0,0],
+            "radius": 2
+        },
+        {
+            "type": "circle",
+            "center": [0,0],
+            "radius": 4
+        },
+        {
+            "type": "text",
+            "lineHeight": 1,
+            "text": "Test",
+            "center": [0,0]
+        },
+        {
+            "type": "text",
+            "lineHeight": 2,
+            "text": "Test",
+            "center": [0,0]
+        },
+        {
+            "type": "text",
+            "lineHeight": 3,
+            "text": "Test",
+            "center": [0,0]
+        },
+        {
+            "type": "group",
+            "shapes":[
+                {
+                    "type": "line",
+                    "p1": [0,0],
+                    "p2": [0,2]
+                },
+                {
+                    "type": "polyline",
+                    "points": [[0,0], [0,2], [1,2]]
+                },
+                {
+                    "type": "triangle",
+                    "p1": [0,0],
+                    "p2": [1,1],
+                    "p3": [0,2]
+                },
+                {
+                    "type": "rectangle",
+                    "topLeft": [0,0],
+                    "width": 2,
+                    "height": 2
+                },
+                {
+                    "type": "polygon",
+                    "points": [[-1,0], [-0.5, 1], [0.5, 1], [1,0]]
+                },
+                {
+                    "type": "circle",
+                    "center": [0,0],
+                    "radius": 1
+                }
+            ]
+        }
+    ]               
+
+}

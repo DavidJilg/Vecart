@@ -1,0 +1,23 @@
+{
+    "outputPath": "/examples/text/ellie_text.svg",
+    "shapes": [
+        {
+            "type": "text",
+            "center": [0,0],
+            "lineHeight": 2,
+            "text": "Ellie"
+        },
+        {
+            "type": "text",
+            "center": [0,0],
+            "lineHeight": 4,
+            "text": "Ellie"
+        },
+        {
+            "type": "text",
+            "center": [0,0],
+            "lineHeight": 8,
+            "text": "Ellie"
+        }
+    ]
+}

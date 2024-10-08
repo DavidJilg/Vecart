@@ -1,0 +1,23 @@
+{
+    "outputPath": "/examples/rectangles/ellie_rectangles.svg",
+    "shapes": [
+        {
+            "type": "rectangle",
+            "topLeft": [0,0],
+            "width": 1,
+            "height": 1
+        },
+        {
+            "type": "rectangle",
+            "topLeft": [0,0],
+            "width": 2,
+            "height": 2
+        },
+        {
+            "type": "rectangle",
+            "topLeft": [0,0],
+            "width": 4,
+            "height": 4
+        }
+    ]
+}

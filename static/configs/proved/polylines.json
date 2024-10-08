@@ -1,0 +1,40 @@
+{
+    "parallelRoutines" : 5,
+    "outputPath": "/output/ellie3.svg",
+    "artworkWidth" : 63,
+    "artworkHeight" : 92,
+    "darknessThreshold":   18,
+	"shapeDarknessFactor": 40,
+	"whitePunishmentBoundry": 5,
+	"whitePunishmentValue": 0.85,
+    "randomSeed": 1701,
+	"shapeAngleDeviationStep": 10,
+    "processingDpi": 25,
+	"outputDpi": 72,
+    "shapes": [
+        {
+            "type": "polyline",
+            "points": [[0,0], [0,2], [1,2]]
+        },
+        {
+            "type": "polyline",
+            "points": [[0,0], [0,2], [1,-2]]
+        },
+        {
+            "type": "polyline",
+            "points": [[0,0], [0,4], [2,4]]
+        },
+        {
+            "type": "polyline",
+            "points": [[0,0], [0,4], [2,-4]]
+        },
+        {
+            "type": "polyline",
+            "points": [[0,0], [0,8], [4,8]]
+        },
+        {
+            "type": "polyline",
+            "points": [[0,0], [0,8], [4,-8]]
+        }
+    ]
+}

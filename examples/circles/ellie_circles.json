@@ -1,0 +1,20 @@
+{
+    "outputPath": "/examples/circles/ellie_circles.svg",
+    "shapes": [
+        {
+            "type": "circle",
+            "center": [0,0],
+            "radius": 0.5
+        },
+        {
+            "type": "circle",
+            "center": [0,0],
+            "radius": 1
+        },
+        {
+            "type": "circle",
+            "center": [0,0],
+            "radius": 2
+        }
+    ]
+}

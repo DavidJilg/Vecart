@@ -1,0 +1,61 @@
+{
+    "outputPath": "/examples/earth_rise/earth_rise.svg",
+    "inputPath": "/examples/earth_rise/earth_rise_inverted.jpg",
+    "darknessThreshold": 40,
+    "artworkWidth": 1000,
+    "artworkHeight": 0, 
+    "shapeAngleDeviationStep": 50,
+    "shapes": [
+        {
+            "type": "circle",
+            "center": [0,0],
+            "radius": 0.5
+        },
+        {
+            "type": "circle",
+            "center": [0,0],
+            "radius": 1
+        },
+        {
+            "type": "circle",
+            "center": [0,0],
+            "radius": 2
+        },
+        {
+            "type": "triangle",
+            "p1": [0,0],
+            "p2": [0.5,0.5],
+            "p3": [0,1]
+        },
+        {
+            "type": "triangle",
+            "p1": [0,0],
+            "p2": [1,1],
+            "p3": [0,2]
+        },
+        {
+            "type": "triangle",
+            "p1": [0,0],
+            "p2": [2,2],
+            "p3": [0,4]
+        },
+        {
+            "type": "rectangle",
+            "topLeft": [0,0],
+            "width": 1,
+            "height": 1
+        },
+        {
+            "type": "rectangle",
+            "topLeft": [0,0],
+            "width": 2,
+            "height": 2
+        },
+        {
+            "type": "rectangle",
+            "topLeft": [0,0],
+            "width": 4,
+            "height": 4
+        }
+    ]
+}
