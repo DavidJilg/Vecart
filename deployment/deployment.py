@@ -76,8 +76,8 @@ if __name__ == '__main__':
     deployment_targets = [
         ("windows", "386", "Windows_x86"),
         ("windows", "amd64", "Windows_x86-64"),
-        ("linux", "386", "Linux_86"),
-        ("linux", "amd64", "Linux_86-64")
+        ("linux", "386", "Linux_x86"),
+        ("linux", "amd64", "Linux_x86-64")
     ]
 
     generate_windows_icon(deployment_dir)

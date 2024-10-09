@@ -1,6 +1,7 @@
 {
-    "parallelRoutines" : 5,
     "outputPath": "ellie.svg",
+    "config.shapeAngleDeviationRange": 90,
+	"config.shapeAngleDeviationStep": 30,
     "shapes": [
         {
             "type": "line",
