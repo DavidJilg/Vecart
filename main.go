@@ -34,13 +34,13 @@ func main() {
 	argsWithoutProg := os.Args[1:]
 	if len(argsWithoutProg) > 0 {
 		switch strings.ToLower(argsWithoutProg[0]) {
-		case "license", "--license", "-license", "-l":
+		case "license", "--license", "-license", "-l", "l":
 			fmt.Println(getLicense())
 			return
 		case "updateprovedsvg":
 			updateProvedSVG()
 			return
-		case "help", "-help", "h", "-h":
+		case "help", "-help", "--help", "h", "-h":
 			printUsage()
 		}
 	}
