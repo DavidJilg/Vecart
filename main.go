@@ -22,7 +22,7 @@ import (
 	"github.com/disintegration/gift"
 )
 
-const Version = "1.0"
+const Version = "1.0.0"
 
 var Config VecartConfig
 var UserConfig string
@@ -296,13 +296,13 @@ func startVecart() string {
 	return generateVectorArt(greyscaleImg.Bounds().Max.X, greyscaleImg.Bounds().Max.Y)
 }
 
-func getAllShapeVariants(xOffset float64) []*Shape{
+func getAllShapeVariants(xOffset float64) []*Shape {
 	var shapes []*Shape
 
 	currentXOffset := 0.0
 
-	for _, shape := range Config.shapes{
-		for _, variant := range shape.Variants{
+	for _, shape := range Config.shapes {
+		for _, variant := range shape.Variants {
 			copy := variant.transformCopy(currentXOffset, 0)
 			copy.mmToPixel(Config.outputDpi)
 			shapes = append(shapes, copy)
