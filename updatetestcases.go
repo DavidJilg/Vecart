@@ -17,7 +17,7 @@ func updateProvedSVG() {
 	Fonts = loadFonts()
 
 	for _, configPath := range configPaths {
-		config, err := getConfigFromStaticAssets(configPath)
+		config, userConfigKeys, userShapes, err := getConfigFromStaticAssets(configPath)
 		if err != nil {
 			fmt.Println(err)
 			panic("Could not get config file '" + configPath + "' from static assets!")
@@ -27,13 +27,13 @@ func updateProvedSVG() {
 		config.shapeAngleDeviationStep = 30
 		config.processingDpi = 10
 		config.parallelRoutines = 1
+		config.overwriteExisting = true
 		config.randomSeed = 1701
-		config.debug = false
 
+		CurrentConfigEntry = NewConfigEntry("TEST", config, userConfigKeys, userShapes)
 		Config = config
-		UserConfig = Config.toJson()
 
-		writeStringToFile(startVecart(), Config.outputPath)
+		writeStringToFile(startShapeArtGeneration(), Config.outputPath)
 
 		resetStaticVariables()
 	}
@@ -42,10 +42,11 @@ func updateProvedSVG() {
 
 func resetStaticVariables() {
 	errorsOcurred = false
-	errors = nil
-	debug = false
+	occuredErrors = nil
+	Log = false
 	Config = NewConfig()
-	UserConfig = ""
+	CurrentConfigEntry = ConfigEntry{}
+	configEntries = []ConfigEntry{}
 	RandSource = nil
 	quadrants = nil
 	ShapeCount = 0
@@ -60,20 +61,20 @@ func resetStaticVariables() {
 	finishQuadrantsStop = false
 }
 
-func getConfigFromStaticAssets(path string) (VecartConfig, error) {
+func getConfigFromStaticAssets(path string) (VecartConfig, []string, any, error) {
 	configFile, err := StaticAssets.Open(path)
 	if err != nil {
-		return NewConfig(), err
+		return NewConfig(), []string{}, nil, err
 	}
 
 	content, err := getFileContentsFromStaticAssets(configFile)
 
 	if err != nil {
-		return NewConfig(), err
+		return NewConfig(), []string{}, nil, err
 	}
 
 	config := NewConfig()
-	config.fromJSON(content)
+	userKeys, userShapes, _, _ := config.fromJSON(content)
 
-	return config, nil
+	return config, userKeys, userShapes, nil
 }

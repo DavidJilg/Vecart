@@ -1,9 +1,9 @@
 package main
 
 import (
-	"fmt"
 	"image"
 	"image/color"
+	"log"
 	"math"
 	"slices"
 	"sync"
@@ -31,6 +31,7 @@ type Quadrant struct {
 	Shapes          []Shape
 	accessMutex     sync.Mutex
 	processingMutex sync.Mutex
+	border          Polyline
 }
 
 func NewQuadrant(img *image.Gray, quadrantId uint, nrOfQuadrants uint, quadrantsPerRow uint, quadrantsPerColumn uint) *Quadrant {
@@ -47,6 +48,13 @@ func NewQuadrant(img *image.Gray, quadrantId uint, nrOfQuadrants uint, quadrants
 
 	currentQuadrant.X2 = currentQuadrant.getBottomRightPixel().X2
 	currentQuadrant.Y2 = currentQuadrant.getBottomRightPixel().Y2
+
+	currentQuadrant.border = Polyline{[]Point{
+		{float64(currentQuadrant.X1), float64(currentQuadrant.Y1)},
+		{float64(currentQuadrant.X2), float64(currentQuadrant.Y1)},
+		{float64(currentQuadrant.X2), float64(currentQuadrant.Y2)},
+		{float64(currentQuadrant.X1), float64(currentQuadrant.Y2)},
+		{float64(currentQuadrant.X1), float64(currentQuadrant.Y1)}}, nil}
 
 	for index := range currentQuadrant.Pixels {
 		for index2 := range currentQuadrant.Pixels[index] {
@@ -159,8 +167,8 @@ func (quadrant *Quadrant) removeShapeWithoutNeighbors(shapeIndex int) {
 
 func (quadrant *Quadrant) removeShape(shapeIndex int) {
 	if shapeIndex >= len(quadrant.Shapes) {
-		if Config.debug {
-			fmt.Printf("Quadrant.removeShape called with shapeIndex %d while len(Shapes) == %d\n", shapeIndex, len(quadrant.Shapes))
+		if Log {
+			log.Printf("Quadrant.removeShape called with shapeIndex %d while len(Shapes) == %d\n", shapeIndex, len(quadrant.Shapes))
 		}
 		return
 	}
@@ -283,4 +291,8 @@ func getQuadrantPixels(img *image.Gray, xPosition int, yPosition int) *[][]Pixel
 	}
 
 	return &pixels
+}
+
+func (quadrant *Quadrant) isIntersectedByLine(line *Polyline) bool {
+	return intersectingPolylines(line, &quadrant.border)
 }

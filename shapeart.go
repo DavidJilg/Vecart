@@ -3,10 +3,12 @@ package main
 import (
 	"fmt"
 	"image"
+	"log"
 	"math"
 	"math/rand/v2"
 	"sort"
 	"strconv"
+	"strings"
 	"sync"
 	"time"
 )
@@ -24,10 +26,26 @@ var stopSpinnerBool bool
 var stopSpinnerMutex sync.Mutex
 
 var lastAjustedDarkness float64
-var lastAjustedDarknessChange float64
+var lastAjustedDarknessChange int
 
 var finishQuadrantsMutex sync.Mutex
 var finishQuadrantsStop bool
+
+func resetStaticShapeArtVariables() {
+	quadrants = []*Quadrant{}
+	ShapeCount = 0
+	ShapeCountMutex = nil
+	spinnerFrames = []string{}
+	spinnerFinishedFrame = ""
+	currentSpinnerFrame = 0
+	spinnerUpdateFrequency = 0
+	stopSpinnerBool = false
+	stopSpinnerMutex = sync.Mutex{}
+	lastAjustedDarkness = 0.0
+	lastAjustedDarknessChange = 0
+	finishQuadrantsMutex = sync.Mutex{}
+	finishQuadrantsStop = false
+}
 
 func initializeQuadrants(image *image.Gray, neighborRange int) {
 	quadrantsPerRow := (*image).Bounds().Max.X / Config.quadrantWidth
@@ -110,7 +128,8 @@ func initializeShapes() {
 	}
 }
 
-func initialize(image *image.Gray, neighborRange int) {
+func initializeForShapeGeneration(image *image.Gray, neighborRange int) {
+	resetStaticShapeArtVariables()
 	initializeQuadrants(image, neighborRange)
 	initializeShapes()
 }
@@ -176,8 +195,8 @@ func scoreShape(quadrant *Quadrant, shape *Shape) float64 {
 		currentNeighbor.accessMutex.Unlock()
 	}
 
-	if len(intersectedPixels) == 0 && Config.debug{
-		fmt.Println("Placed shape intersects no pixels!")
+	if len(intersectedPixels) == 0 && Log {
+		log.Println("Placed shape intersects no pixels!")
 	}
 
 	for _, pixel := range intersectedPixels {
@@ -190,8 +209,7 @@ func scoreShape(quadrant *Quadrant, shape *Shape) float64 {
 	neighborhoodDarknessAfter /= nrOfQuadrants
 
 	//Todo Remove
-	score := ((neighborhoodDarknessBefore - neighborhoodDarknessAfter) / float64(len(intersectedPixels))) - (punishment / float64(len(intersectedPixels)))
-	return score
+	return ((neighborhoodDarknessBefore - neighborhoodDarknessAfter) / float64(len(intersectedPixels))) - (punishment / float64(len(intersectedPixels)))
 }
 
 func finishQuadrants(wg *sync.WaitGroup, randSource *rand.Rand) {
@@ -202,8 +220,8 @@ func finishQuadrants(wg *sync.WaitGroup, randSource *rand.Rand) {
 	for currentQuadrant != nil {
 		finishQuadrantsMutex.Lock()
 		if finishQuadrantsStop {
-			if Config.debug {
-				fmt.Println("\nfinishQuadrants routine ending early since it was requested by the montoring routine.")
+			if Log {
+				log.Println("\nfinishQuadrants routine ending early since it was requested by the montoring routine.")
 			}
 			finishQuadrantsMutex.Unlock()
 			return
@@ -261,8 +279,8 @@ func finishQuadrants(wg *sync.WaitGroup, randSource *rand.Rand) {
 			currentQuadrant.addShape(bestShapes[randSource.IntN(len(bestShapes))])
 
 		} else {
-			if Config.debug {
-				fmt.Println("No Best Shape")
+			if Log {
+				log.Println("No Best Shape")
 			}
 			currentQuadrant.processingMutex.Unlock()
 			currentQuadrant = getUnfinishedQuadrant(randSource)
@@ -285,13 +303,12 @@ func endFinishQuadrantsRoutines() {
 func monitorQuadrants(wg *sync.WaitGroup, alreadyFinishedQuadrants float64, message string) {
 	defer wg.Done()
 	fmt.Println()
-	if Config.debug {
-		fmt.Println("Shapes | Unfinished Quadrants | Avg. adjusted darkness")
-		fmt.Println("------------------------------------------------------")
+	if Log {
+		log.Println("Shapes | Unfinished Quadrants | Avg. adjusted darkness")
+		log.Println("------------------------------------------------------")
 	}
 	nrOfQuadrants := float64(len(quadrants))
 	nrOfNotAlreadyFinishedQuadrants := nrOfQuadrants - alreadyFinishedQuadrants
-	updateFrequency := time.Second * 2
 	finishedQuadrants := make(map[int]bool)
 	for index := range quadrants {
 		finishedQuadrants[index] = false
@@ -318,7 +335,7 @@ func monitorQuadrants(wg *sync.WaitGroup, alreadyFinishedQuadrants float64, mess
 		}
 
 		if nrOfUnfinishedQuadrants == 0 {
-			if !Config.debug {
+			if !Log {
 				fmt.Printf("\r%s %s %3.2f %s", spinnerFinishedFrame, message, 100.0, "%")
 			}
 			return
@@ -327,11 +344,13 @@ func monitorQuadrants(wg *sync.WaitGroup, alreadyFinishedQuadrants float64, mess
 		adjustedDarkness = adjustedDarkness / float64(len(quadrants))
 		if adjustedDarkness == lastAjustedDarkness {
 			lastAjustedDarknessChange++
-			if int(updateFrequency.Seconds()*lastAjustedDarknessChange) > Config.timeout {
-				if !Config.debug {
-					fmt.Printf("\r%s %s %3.2f %s", spinnerFinishedFrame, message, 100.0, "%")
+			if Config.updateFrequency*lastAjustedDarknessChange > Config.timeout {
+				percentage := 100 * ((nrOfNotAlreadyFinishedQuadrants - nrOfUnfinishedQuadrants) / nrOfNotAlreadyFinishedQuadrants)
+				if !Log {
+					fmt.Printf("\r%s %s %3.2f %s", spinnerFinishedFrame, message, percentage, "%")
+					fmt.Printf(" || Timeout: No change for %d seconds. Prematurly ending shape placement (%3.2f %s).", Config.timeout, percentage, "%s")
 				} else {
-					fmt.Printf("\nNo adjusted darkness change for %d seconds. Ending line placement early\n", int(updateFrequency.Seconds()*lastAjustedDarknessChange))
+					log.Printf("\nNo adjusted darkness change for %d seconds. Stopped at %3.2f %s. Ending line placement early\n", Config.updateFrequency*lastAjustedDarknessChange, percentage, "%")
 				}
 				endFinishQuadrantsRoutines()
 				return
@@ -341,19 +360,19 @@ func monitorQuadrants(wg *sync.WaitGroup, alreadyFinishedQuadrants float64, mess
 			lastAjustedDarknessChange = 0
 		}
 
-		if Config.debug {
+		if Log {
 			ShapeCountMutex.Lock()
 			nrOfShapes := ShapeCount
 			ShapeCountMutex.Unlock()
 
-			fmt.Printf("%05d | %5.0f | %03s\n", nrOfShapes, nrOfUnfinishedQuadrants, strconv.FormatFloat(adjustedDarkness, 'f', 2, 64))
-			time.Sleep(updateFrequency)
+			log.Printf("%05d | %5.0f | %03s\n", nrOfShapes, nrOfUnfinishedQuadrants, strconv.FormatFloat(adjustedDarkness, 'f', 2, 64))
+			time.Sleep(time.Duration(Config.updateFrequency) * time.Second)
 			continue
 		}
 		percentage := 100 * ((nrOfNotAlreadyFinishedQuadrants - nrOfUnfinishedQuadrants) / nrOfNotAlreadyFinishedQuadrants)
 
 		start := time.Now()
-		for time.Since(start) < updateFrequency {
+		for time.Since(start) < time.Duration(Config.updateFrequency)*time.Second {
 			fmt.Printf("\r%s %s %3.2f %s", spinnerFrames[currentSpinnerFrame], message, percentage, "%")
 
 			currentSpinnerFrame++
@@ -441,12 +460,13 @@ func removeShapes(toBeRemoved []*ShapeScore) {
 	}
 }
 
-func generateVectorArt(artworkWidth, artworkHeight int) string {
+func generateShapeArt(artworkWidth, artworkHeight int) string {
 	spinnerFrames = []string{"⠋", "⠙", "⠹", "⠸", "⠼", "⠴", "⠦", "⠧", "⠇", "⠏"}
 	spinnerFinishedFrame = "✓"
 	currentSpinnerFrame = 0
 	spinnerUpdateFrequency = time.Millisecond * 100
 	stopSpinnerMutex = sync.Mutex{}
+	start := time.Now()
 
 	wg := sync.WaitGroup{}
 	ShapeCount = 0
@@ -472,7 +492,7 @@ func generateVectorArt(artworkWidth, artworkHeight int) string {
 			wg.Wait()
 
 			alreadyFinishedQuadrants = float64(len(quadrants)) - float64(countUnfinishedQuadrants(&quadrants))
-			if !Config.debug {
+			if !Log {
 				wg.Add(1)
 				go monitorQuadrants(&wg, alreadyFinishedQuadrants, "Refining Shapes ("+strconv.FormatInt(int64(i+1), 10)+")")
 			}
@@ -489,7 +509,7 @@ func generateVectorArt(artworkWidth, artworkHeight int) string {
 
 	}
 
-	if !Config.debug {
+	if !Log {
 		wg.Add(1)
 		stopSpinnerBool = false
 		go startSpinner("Removing Unecessary Shapes", &wg, &stopSpinnerBool, &stopSpinnerMutex)
@@ -497,12 +517,12 @@ func generateVectorArt(artworkWidth, artworkHeight int) string {
 		stopSpinner()
 		wg.Wait()
 	} else {
-		fmt.Println("\nRemoving Unecessary Shapes")
+		log.Println("\nRemoving Unecessary Shapes")
 		removeWorthlessShapes()
 	}
 
 	if Config.smoothEdges {
-		if !Config.debug {
+		if !Log {
 			wg.Add(1)
 			stopSpinnerBool = false
 			go startSpinner("Smoothing Edges", &wg, &stopSpinnerBool, &stopSpinnerMutex)
@@ -520,9 +540,9 @@ func generateVectorArt(artworkWidth, artworkHeight int) string {
 	}
 
 	if Config.combineShapes {
-		if Config.debug {
-			fmt.Println("\nCombining Shapes")
-			fmt.Println("   Before: ", countTotalLines())
+		if Log {
+			log.Println("\nCombining Shapes")
+			log.Println("   Before: ", countTotalLines())
 		} else {
 			wg.Add(1)
 			stopSpinnerBool = false
@@ -530,9 +550,9 @@ func generateVectorArt(artworkWidth, artworkHeight int) string {
 		}
 		combineLines(Config.combineShapesIterations)
 		stopSpinner()
-		if Config.debug {
-			fmt.Println("   After: ", countTotalLines())
-			fmt.Println()
+		if Log {
+			log.Println("   After: ", countTotalLines())
+			log.Println()
 		}
 	}
 
@@ -544,16 +564,15 @@ func generateVectorArt(artworkWidth, artworkHeight int) string {
 
 	wg.Wait()
 
-	
-	if Config.debug {
-		fmt.Println("Generating SVG")
-		return generateSVG(artworkWidth, artworkHeight, collectShapes())
+	if Log {
+		log.Println("Generating SVG")
+		return generateSVG(artworkWidth, artworkHeight, collectShapes(), start)
 	}
 
 	wg.Add(1)
 	stopSpinnerBool = false
 	go startSpinner("Generating SVG File", &wg, &stopSpinnerBool, &stopSpinnerMutex)
-	svg := generateSVG(artworkWidth, artworkHeight, collectShapes())
+	svg := generateSVG(artworkWidth, artworkHeight, collectShapes(), start)
 	stopSpinner()
 	wg.Wait()
 
@@ -660,11 +679,11 @@ func combineLines(iterations int) {
 		}
 
 		if !linesCombined {
-			if Config.debug {
+			if Log {
 				if currentInteration == 1 {
-					fmt.Println("       Combining Shapes finished after 1 Iteration because no shapes were combined in the first iteration.")
+					log.Println("       Combining Shapes finished after 1 Iteration because no shapes were combined in the first iteration.")
 				} else {
-					fmt.Printf("       Combining Shapes finished after %d Iterations because no more shapes were combined in the last iteration.\n", currentInteration)
+					log.Printf("       Combining Shapes finished after %d Iterations because no more shapes were combined in the last iteration.\n", currentInteration)
 				}
 			}
 			return
@@ -754,8 +773,8 @@ func cutLineExcess(line *Polyline, canvasWidth, canvasHeight float64) []Polyline
 		switch value := line.originalShape.(type) {
 		default:
 			lineSegments = line.getLineSegments()
-			if Config.debug {
-				fmt.Println("Invalid original shape type: ", value)
+			if Log {
+				log.Println("Invalid original shape type: ", value)
 			}
 		case *Circle:
 			circle, _ := line.originalShape.(*Circle)
@@ -862,7 +881,7 @@ func PixelToMM(pixels float64, dpi float64) float64 {
 	return (pixels * 25.4) / dpi
 }
 
-// For Debugging purposes only
+/* For Debugging purposes only
 func ShapeToSVGFile(shape Shape, filepath string) {
 	var svgLines []string
 	svgLines = append(svgLines, "<?xml version=\"1.0\"?>")
@@ -887,9 +906,9 @@ func ShapeToSVGFile(shape Shape, filepath string) {
 		}
 	}
 	writeStringToFile(svg, filepath)
-}
+}*/
 
-func collectShapes() []*Shape{
+func collectShapes() []*Shape {
 	var shapes []*Shape
 
 	if Config.reverseShapeOrder {
@@ -909,9 +928,11 @@ func collectShapes() []*Shape{
 	return shapes
 }
 
-func generateSVG(artworkWidth, artworkHeight int, shapes []*Shape) string {
-	artworkHeightPixel := strconv.FormatFloat(mmToPixel(PixelToMM(float64(artworkHeight), Config.processingDpi), Config.outputDpi), 'f', 2, 64)
-	artworkWidthPixel := strconv.FormatFloat(mmToPixel(PixelToMM(float64(artworkWidth), Config.processingDpi), Config.outputDpi), 'f', 2, 64)
+func generateSVG(artworkWidth, artworkHeight int, shapes []*Shape, start time.Time) string {
+	artworkHeightPixel := mmToPixel(PixelToMM(float64(artworkHeight), Config.processingDpi), Config.outputDpi)
+	artworkWidthPixel := mmToPixel(PixelToMM(float64(artworkWidth), Config.processingDpi), Config.outputDpi)
+	artworkHeightPixelString := strconv.FormatFloat(artworkHeightPixel, 'f', 2, 64)
+	artworkWidthPixelString := strconv.FormatFloat(artworkWidthPixel, 'f', 2, 64)
 
 	var svgLines []string
 	svgLines = append(svgLines, "<?xml version=\"1.0\"?>")
@@ -920,18 +941,64 @@ func generateSVG(artworkWidth, artworkHeight int, shapes []*Shape) string {
 	svgLines = append(svgLines, "     https://david-jilg.com/vecart")
 	if Config.configInOutput {
 		svgLines = append(svgLines, "\nConfig:")
-		svgLines = append(svgLines, UserConfig)
+		if Config.shortConfig {
+			svgLines = append(svgLines, CurrentConfigEntry.toShortJson())
+		} else {
+			svgLines = append(svgLines, CurrentConfigEntry.originalConfig.toJson())
+		}
+
 	}
+
+	if Config.statsInOutput {
+		svgLines = append(svgLines, "\nStats:")
+		svgLines = append(svgLines, "    Nr. of Shapes: "+strconv.Itoa(len(shapes)))
+
+		nrOfLines := 0
+		for _, shape := range shapes {
+			nrOfLines += len(shape.Lines)
+		}
+		svgLines = append(svgLines, "    Nr. of Lines: "+strconv.Itoa(nrOfLines))
+
+		nrOfLineSegments := 0
+		for _, shape := range shapes {
+			for _, line := range shape.Lines {
+				nrOfLineSegments += len(line.points) - 1
+			}
+		}
+		svgLines = append(svgLines, "    Nr. of Line Segments: "+strconv.Itoa(nrOfLineSegments))
+
+		var end time.Time
+		if TestMode {
+			start = time.Unix(2942992800, 0)
+			end = time.Unix(2942996400, 0)
+		} else {
+			end = time.Now()
+		}
+
+		svgLines = append(svgLines, "\nTime: ")
+		svgLines = append(svgLines, fmt.Sprintf("    Start: %s", start.Format(time.RFC822)))
+		svgLines = append(svgLines, fmt.Sprintf("    End: %s", end.Format(time.RFC822)))
+		svgLines = append(svgLines, fmt.Sprintf("    Duration: %s", end.Sub(start).Round(time.Second)))
+
+	}
+
 	svgLines = append(svgLines, "-->")
-	svgLines = append(svgLines, "<svg viewBox=\"0 0 "+artworkWidthPixel+" "+artworkHeightPixel+"\" xmlns=\"http://www.w3.org/2000/svg\">")
+	svgLines = append(svgLines, "<svg viewBox=\"0 0 "+artworkWidthPixelString+" "+artworkHeightPixelString+"\" xmlns=\"http://www.w3.org/2000/svg\">")
 
 	style := "stroke:" + Config.strokeColor + "; fill:none; stroke-width: " + strconv.FormatFloat(Config.strokeWidth, 'f', 2, 64) + "px"
 
-	
+	if strings.ToLower(Config.backgroundColor) != "none" {
+		background := NewPolygon(&[]Point{
+			{0, 0},
+			{float64(artworkWidthPixel), 0},
+			{float64(artworkWidthPixel), float64(artworkHeightPixel)},
+			{0, float64(artworkHeightPixel)}})
+		svgLines = append(svgLines, background.toSVG("fill: "+Config.backgroundColor+"; stroke:none;"))
+	}
 	for _, shape := range shapes {
 		svgLines = append(svgLines, shape.toSVG(style))
 	}
-	
+
 	svgLines = append(svgLines, "</svg>")
 
 	svg := ""

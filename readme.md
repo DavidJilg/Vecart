@@ -19,14 +19,25 @@ For help run `Vecart --help`
 
 For viewing the license run `Vecart --license`
 
-For generating artworks run Vecart with a path to a JSON configuration 
-file `Vecart /path/to/config/file/config.json`
+For viewing the version information run `Vecart --version`
+
+For generating artworks run Vecart with one or more paths to a JSON configuration or a folder containing multiple JSON configuration files with the following command structure: `Vecart [options] config.json anotherConfig.json [...]`
+
+If no config is provided Vecart will run with an example configuration that uses the example image included in the repository.
+
+Options:
+- `--version / -v` Show version information
+- `--help / -h`  Show help information
+- `--license / -l`  Show license information
+- `--debug / -d`  Enable debug mode which provides additional information in the terminal during execution.
+- `--batchseed / -bs [nrOfRuns]`  When provided Vecart will run all the provided configurations multiple times with different random seeds. The number of runs can be specified with the `nrOfRuns` parameter.
+- `--randomOrder / -ro`  When provided Vecart will randomize the order in which the provided configuration files are processed.
 
 ## Configuration
 
 Vecart can be configured with the following parameters. All parameters are optional and have standard values that are used if no value is provided.
 
-| Parameter | Type | Standard Value | Description
+| Parameter | Type | Default Value | Description
 | ----------- | ----------- | ----------- | ----------- |
 | inputPath | String | Example Image | Relative or absolute path to the image that should be converted to vector art. Supported image formats are .png, and .jpg/jpeg  
 | outputPath | String | output.svg | Relative or absolute path to a .svg file in which the artwork should be saved. It will be overidden if it already exists. 
@@ -40,6 +51,7 @@ Vecart can be configured with the following parameters. All parameters are optio
 | whitePunishmentValue | Float >= 0 | 0.85 | The punishment value used to guide the heuristic that determines where shapes are placed. If a shape covers a white pixel its score gets reduced by this value.
 | randomSeed | Integer >= 0 | 1701 | A seed used for the random number generator. The same seed and configuration will result in the same output (deterministic behaviour) if Vecart is run without parralel routines (i.e. multiple threads). 
 | parallelRoutines | Integer > 0 | 5 | Specifies how many parralel routines (i.e. threads) run at the same time. For a deterministic result set the value to 1 (i.e. only one routine running at the same time).
+| updateFrequency | Integer > 0 | 2 | Specifies the update frequency for the console log in seconds. A higher value slightly increases performance especially when using many parralel routines.
 | highPrecisionShapePositioning | Boolean | False | This option determines the amount of positions that are evaluated when placing shapes. If set to True it increases the computational complexity and, therefore, the runtime by the amount of pixels in a quadrant (e.g. 5x5 quadrant -> 25x runtime). Use only if you want the absolute best result Vecart can offer. In most cases this option is not necessary.
 | shapeRefinement | Boolean | True | Determines if multiple passes are made when placing shapes to further refine the positioning of the shapes. 
 | shapeRefinementIterations | Integer > 0 | 1 | Determines the number of passes used to refine the positioning of shapes.
@@ -50,12 +62,15 @@ Vecart can be configured with the following parameters. All parameters are optio
 | combineShapesIterations | Integer > 0 | 5 | The number of passes in which shapes are combined.
 | strokeWidth | Float >= 0 | 0.75 | The stroke width of the shapes when exported to an SVG file.
 | strokeColor | String | black | The color of the shapes when exported to an SVG file.
+| backgroundColor | String | NONE | If set to other than "NONE" a colored background in the form of a rectangle covering the entire artboard is added. The provided color must be supported by the SVG 1.1 standard (e.g. "#79C99E", "black", etc.).
 | reverseShapeOrder | Boolean | False | Determines the order of the shapes in the SVG file. If False the shapes will be ordered from top to bottom.
 | configInOutput | Boolean | True | Determines if the complete configuration of Vecart is included as a comment in the SVG file.
+| shortConfig | Boolean | True | Determines if only a shortend version of configuration is included as a comment in the SVG file. The shortend version only includes parameters that were changed from their default value.
+| statsInOutput | Boolean | True | Determines if statistics, such as the processing time and the number of shapes are included as a comment in the svg file.
 | processingDpi | Float > 0 | 25 | Determines the resolution of the image used during the artwork generation in relation to the artwork size. A DPI of 25 roughly correlates to a 1 to 1 relation between the artwork size in mm and the resolution of the image.
 | outputDpi | Float > 0| 72 | The dpi used for generating the SVG file. The value should be choosen based on what other program you want to further process the output with. For example Adobe Illustrator uses a standard dpi of 72 while Inkscape uses 96.
-| timeout | Integer > 0 | 30 | In rare cases Vecart can become stuck and is not able to completly finish placing enough shapes. This timeout determines how many seconds no progress can be made without aborting the placing of shapes and exporting the current state.
-| debug | Boolean | False | If set to True additional debug information will be provided in the terminal.
+| overwriteExisting | Boolean | False | Determines if Vecart will overwrite existing files. If set to False and the output file already exists Vecart will append a number to the filename.
+| timeout | Integer > 0 | 60 | In rare cases Vecart can become stuck and is not able to completly finish placing enough shapes. This timeout determines how many seconds no progress can be made without aborting the placing of shapes and exporting the current state.
 | shapes | Array of Objects | lines with lenghts of 2, 4, and 8 mm | The set of shapes used to generate the arwork. For more details see the following section.
 | shapeAngleDeviationRange | Float >= 0 | 90 | For all provided shapes rotated variants are generated if this value is greater than 0. The rotation range in both directions (clockwise and anticlockwise) can be set with this value.
 | shapeAngleDeviationStep | Float > 0 | 5 | The step value angle used to generate the rotated variants.
@@ -170,7 +185,7 @@ The following shapes are supported by Vecart and can be specified as shown in th
 	"processingDpi": 25,          
 	"outputDpi": 72,              
 	"debug": false,                  
-	"timeout": 30,                  
+	"timeout": 60,                  
 	"shapes": [
         {
             "type": "line",
@@ -215,84 +230,7 @@ The following shapes are supported by Vecart and can be specified as shown in th
 ```
 
 ## Examples
-The following examples illustrate some of the capabilities of Vecart. The corresponding files can also be found in the 'examples' folder.
-
-## Earthrise
-<p align="center">
-<img src="examples/earth_rise/earth_rise.jpg" alt="drawing" width="50%"/>
-</p>
-<p align="center">
-<img src="examples/earth_rise/earth_rise.png" alt="drawing" width="50%"/>
-</p>
-
-```json
-{
-    "outputPath": "/examples/earth_rise/earth_rise.svg",
-    "inputPath": "/examples/earth_rise/earth_rise_inverted.jpg",
-    "darknessThreshold": 40,      
-    "shapeDarknessFactor": 40,
-    "artworkWidth": 1000,
-    "artworkHeight": 0,
-    "shapeAngleDeviationStep": 50,
-    "shapes": [
-        {
-            "type": "circle",
-            "center": [0,0],
-            "radius": 0.5
-        },
-        {
-            "type": "circle",
-            "center": [0,0],
-            "radius": 1
-        },
-        {
-            "type": "circle",
-            "center": [0,0],
-            "radius": 2
-        },
-        {
-            "type": "triangle",
-            "p1": [0,0],
-            "p2": [0.5,0.5],
-            "p3": [0,1]
-        },
-        {
-            "type": "triangle",
-            "p1": [0,0],
-            "p2": [1,1],
-            "p3": [0,2]
-        },
-        {
-            "type": "triangle",
-            "p1": [0,0],
-            "p2": [2,2],
-            "p3": [0,4]
-        },
-        {
-            "type": "rectangle",
-            "topLeft": [0,0],
-            "width": 1,
-            "height": 1
-        },
-        {
-            "type": "rectangle",
-            "topLeft": [0,0],
-            "width": 2,
-            "height": 2
-        },
-        {
-            "type": "rectangle",
-            "topLeft": [0,0],
-            "width": 4,
-            "height": 4
-        }
-    ]
-}
-```
-
-----
-
-Each of following examples were generated using the following source image of Ellie Williams from The Last of Us and the configuration provided with each example.
+The following examples illustrate some of the capabilities of Vecart. The corresponding files can also be found in the 'examples' folder. Each of following examples were generated using the following source image of Ellie Williams from The Last of Us and the configuration provided with each example.
 
 <p align="center">
 <img src="static/ellie.png" alt="drawing" width="50%"/>

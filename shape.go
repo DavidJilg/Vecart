@@ -1,7 +1,7 @@
 package main
 
 import (
-	"fmt"
+	"log"
 	"math"
 )
 
@@ -86,7 +86,7 @@ func NewLine(p1, p2 *Point) *Shape {
 
 func (shape *Shape) centerOnOrigin() {
 	shape.calculateCentroid()
-	shape.transform(shape.centroid.X * -1.0, shape.centroid.Y * -1.0)
+	shape.transform(shape.centroid.X*-1.0, shape.centroid.Y*-1.0)
 }
 
 func (shape *Shape) centerOnPoint(point Point) {
@@ -132,15 +132,15 @@ func (shape *Shape) bottomLeftOnOrigin() {
 
 func (shape *Shape) calculateCentroid() {
 	minX, maxX, minY, maxY := shape.getMaxAndMinCoordinates()
-	shape.centroid = Point{(minX + maxX)/2, (minY + maxY)/2}
+	shape.centroid = Point{(minX + maxX) / 2, (minY + maxY) / 2}
 }
 
 func (shape *Shape) ensureOriginCover() {
 	if shape.originCovered() {
 		return
 	}
-	if Config.debug {
-		fmt.Println("Shape is not covering origin (0,0). Trying to move it ...")
+	if Log {
+		log.Println("Shape is not covering origin (0,0). Trying to move it ...")
 	}
 
 	size := int(math.Ceil(math.Max(shape.getSize())))
@@ -150,8 +150,8 @@ func (shape *Shape) ensureOriginCover() {
 		if shapeCopy.originCovered() {
 			shape.Lines = shapeCopy.Lines
 			shape.centroid = shapeCopy.centroid
-			if Config.debug {
-				fmt.Println("Moving shape to cover origin sucessful.")
+			if Log {
+				log.Println("Moving shape to cover origin sucessful.")
 			}
 			return
 		}
@@ -160,8 +160,8 @@ func (shape *Shape) ensureOriginCover() {
 		if shapeCopy2.originCovered() {
 			shape.Lines = shapeCopy2.Lines
 			shape.centroid = shapeCopy2.centroid
-			if Config.debug {
-				fmt.Println("Moving shape to cover origin sucessful.")
+			if Log {
+				log.Println("Moving shape to cover origin sucessful.")
 			}
 			return
 		}
@@ -170,8 +170,8 @@ func (shape *Shape) ensureOriginCover() {
 		if shapeCopy3.originCovered() {
 			shape.Lines = shapeCopy3.Lines
 			shape.centroid = shapeCopy3.centroid
-			if Config.debug {
-				fmt.Println("Moving shape to cover origin sucessful.")
+			if Log {
+				log.Println("Moving shape to cover origin sucessful.")
 			}
 			return
 		}
@@ -180,8 +180,8 @@ func (shape *Shape) ensureOriginCover() {
 		if shapeCopy4.originCovered() {
 			shape.Lines = shapeCopy4.Lines
 			shape.centroid = shapeCopy4.centroid
-			if Config.debug {
-				fmt.Println("Moving shape to cover origin sucessful.")
+			if Log {
+				log.Println("Moving shape to cover origin sucessful.")
 			}
 			return
 		}
@@ -198,16 +198,16 @@ func (shape *Shape) ensureOriginCover() {
 	shape.transform(x, y)
 
 	if shape.originCovered() {
-		if Config.debug {
-			fmt.Println("Moving shape to cover origin sucessful.")
+		if Log {
+			log.Println("Moving shape to cover origin sucessful.")
 		}
 	} else {
-		if Config.debug {
-			fmt.Println("Could not ensure origin cover for shape.")
+		if Log {
+			log.Println("Could not ensure origin cover for shape.")
 		}
 	}
 
-	for index, _ := range shape.Variants{
+	for index := range shape.Variants {
 		shape.Variants[index].ensureOriginCover()
 	}
 }

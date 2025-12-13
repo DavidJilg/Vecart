@@ -3,17 +3,19 @@ package main
 import "testing"
 
 func TestEmptyConfigJson(t *testing.T) {
+	TestMode = true
 	baseConfig := NewConfig()
 
 	config := NewConfig()
 	config.fromJSON("")
 
-	if !config.equalTo(&baseConfig) {
+	if !config.equalTo(&baseConfig, true) {
 		t.Error("Reading Empty Config failed!")
 	}
 }
 
 func TestAllConfigJson(t *testing.T) {
+	TestMode = true
 	baseConfig := NewConfig()
 	baseConfig.inputPath = "/some/path/picture.png"
 	baseConfig.outputPath = "/some/path/art.svg"
@@ -27,6 +29,7 @@ func TestAllConfigJson(t *testing.T) {
 	baseConfig.whitePunishmentValue = 8.5
 	baseConfig.randomSeed = 9
 	baseConfig.parallelRoutines = 10
+	baseConfig.updateFrequency = 10
 	baseConfig.shapeRefinementIterations = 16
 	baseConfig.shapeRefinementPercentage = 16.5
 	baseConfig.shapeRefinement = false
@@ -37,12 +40,15 @@ func TestAllConfigJson(t *testing.T) {
 	baseConfig.combineShapesIterations = 12
 	baseConfig.strokeWidth = 13.5
 	baseConfig.strokeColor = "red"
+	baseConfig.backgroundColor = "white"
 	baseConfig.reverseShapeOrder = true
 	baseConfig.configInOutput = false
+	baseConfig.shortConfig = false
+	baseConfig.statsInOutput = false
 	baseConfig.processingDpi = 14
 	baseConfig.outputDpi = 15
 	baseConfig.timeout = 20
-	baseConfig.debug = true
+	baseConfig.overwriteExisting = true
 	baseConfig.shapes = nil
 
 	baseConfig.shapes = append(baseConfig.shapes, *NewLine(NewPoint(0, 0), NewPoint(0, 2)))
@@ -99,12 +105,13 @@ func TestAllConfigJson(t *testing.T) {
 	allConfig := NewConfig()
 	allConfig.fromJSON(content)
 
-	if !allConfig.equalTo(&baseConfig) {
+	if !allConfig.equalTo(&baseConfig, true) {
 		t.Error("Parsing all.json to config failed!")
 	}
 }
 
 func TestLineConfigJson(t *testing.T) {
+	TestMode = true
 	baseConfig := NewConfig()
 	baseConfig.shapes = nil
 	baseConfig.shapes = append(baseConfig.shapes, *NewLine(NewPoint(0, 0), NewPoint(0, 2)))
@@ -131,6 +138,7 @@ func TestLineConfigJson(t *testing.T) {
 }
 
 func TestPolylineConfigJson(t *testing.T) {
+	TestMode = true
 	baseConfig := NewConfig()
 	baseConfig.shapes = nil
 	baseConfig.shapes = append(baseConfig.shapes, *NewSingleLineShape(*NewPolyline(&[]Point{{0, 0}, {0, 2}, {1, 2}}, nil)))
@@ -160,6 +168,7 @@ func TestPolylineConfigJson(t *testing.T) {
 }
 
 func TestTriangleConfigJson(t *testing.T) {
+	TestMode = true
 	baseConfig := NewConfig()
 	baseConfig.shapes = nil
 	baseConfig.shapes = append(baseConfig.shapes, *NewPolygon(&[]Point{{0, 0}, {1, 1}, {0, 2}}).toShape())
@@ -186,6 +195,7 @@ func TestTriangleConfigJson(t *testing.T) {
 }
 
 func TestRectanglesConfigJson(t *testing.T) {
+	TestMode = true
 	baseConfig := NewConfig()
 	baseConfig.shapes = nil
 	baseConfig.shapes = append(baseConfig.shapes, *NewPolygon(&[]Point{{0, 0}, {2, 0}, {2, 2}, {0, 2}}).toShape())
@@ -212,6 +222,7 @@ func TestRectanglesConfigJson(t *testing.T) {
 }
 
 func TestCirclesConfigJson(t *testing.T) {
+	TestMode = true
 	baseConfig := NewConfig()
 	baseConfig.shapes = nil
 	baseConfig.shapes = append(baseConfig.shapes, *NewCircle(*NewPoint(0, 0), 1).toShape())
@@ -238,6 +249,7 @@ func TestCirclesConfigJson(t *testing.T) {
 }
 
 func TestPolygonsConfigJson(t *testing.T) {
+	TestMode = true
 	baseConfig := NewConfig()
 	baseConfig.shapes = nil
 	baseConfig.shapes = append(baseConfig.shapes, *NewPolygon(&[]Point{{-1, 0}, {-0.5, 1}, {0.5, 1}, {1, 0}}).toShape())
@@ -264,6 +276,7 @@ func TestPolygonsConfigJson(t *testing.T) {
 }
 
 func TestGroupConfigJson(t *testing.T) {
+	TestMode = true
 	baseConfig := NewConfig()
 	baseConfig.shapes = nil
 

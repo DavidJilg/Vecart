@@ -61,7 +61,7 @@ def build_vecart(deployment_dir: str, version: str, deployment_targets: [(str, s
 
 def add_icon_to_exe(deployment_dir: str, exe: str) -> None:
     subprocess.run(
-        args=[f"ResourceHacker.exe",
+        args=[f"{deployment_dir}resourceHacker/ResourceHacker.exe",
               "-open", exe,
               "-save", exe,
               "-action", "addskip",

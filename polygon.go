@@ -8,6 +8,70 @@ func NewPolygon(points *[]Point) *Polygon {
 	return &Polygon{*points}
 }
 
+func NewPolygonShapeWithOriginalPoints(points *[]Point, originalPoints *[]Point) *Shape {
+	line := NewPolygon(points).toPolyline()
+	line.originalShape = NewPolygon(originalPoints)
+	shape := Shape{[]Polyline{*line}, nil, Point{0, 0}}
+	shape.calculateCentroid()
+
+	return &shape
+}
+
+func NewHeart(size float64) *Shape {
+	originalPoints := []Point{
+		{277.4, 409.2},
+		{277.9, 408.7},
+		{278.4, 408.4},
+		{279.1, 408.1},
+		{279.8, 408.0},
+		{280.5, 408.1},
+		{281.3, 408.5},
+		{282.0, 409.1},
+		{282.5, 409.7},
+		{282.7, 410.5},
+		{282.8, 411.0},
+		{282.7, 411.7},
+		{282.5, 412.4},
+		{282.1, 413.1},
+		{281.5, 414.0},
+		{277.1, 419.3},
+		{272.8, 414.0},
+		{272.1, 413.1},
+		{271.8, 412.4},
+		{271.6, 411.7},
+		{271.5, 411.0},
+		{271.6, 410.5},
+		{271.8, 409.7},
+		{272.2, 409.1},
+		{273.0, 408.5},
+		{273.8, 408.1},
+		{274.5, 408.0},
+		{275.2, 408.1},
+		{275.9, 408.4},
+		{276.4, 408.7},
+		{276.9, 409.2},
+		{277.1, 409.7},
+	}
+	points := []Point{
+		{277.1, 419.3},
+		{272.5, 413.6},
+		{271.4, 411.0},
+		{273.7, 408.1},
+		{277.1, 409.7},
+		{280.5, 408.1},
+		{282.8, 411.0},
+		{281.7, 413.6},
+	}
+
+	heart := NewPolygonShapeWithOriginalPoints(&points, &originalPoints)
+	heart.centerOnPoint(*NewPoint(0, 0))
+	heart.calculateCentroid()
+	currentSize := max(heart.getMaxSize())
+	heart.scale(1 / currentSize)
+	heart.scale(size)
+	return heart
+}
+
 func (polygon *Polygon) equalTo(otherPolygon *Polygon, precision int) bool {
 	pointsA := append(polygon.points, polygon.points[0])
 	pointsB := append(otherPolygon.points, otherPolygon.points[0])

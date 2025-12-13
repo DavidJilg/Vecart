@@ -8,6 +8,8 @@ import (
 )
 
 func TestVecart(t *testing.T) {
+	TestMode = true
+
 	var configPaths []string
 	configPaths = append(configPaths, "static/configs/proved/circles.json")
 	configPaths = append(configPaths, "static/configs/proved/group.json")
@@ -15,7 +17,7 @@ func TestVecart(t *testing.T) {
 	configPaths = append(configPaths, "static/configs/proved/polygons.json")
 
 	for _, configPath := range configPaths {
-		config, err := getConfigFromStaticAssets(configPath)
+		config, userConfigKeys, userShapes, err := getConfigFromStaticAssets(configPath)
 		if err != nil {
 			fmt.Println(err)
 			panic("Could not get config '" + configPath + "' from static assets!")
@@ -24,15 +26,15 @@ func TestVecart(t *testing.T) {
 		config.processingDpi = 10
 		config.parallelRoutines = 1
 		config.randomSeed = 1701
-		config.debug = false
+		config.overwriteExisting = true
 		basename := filepath.Base(configPath)
 		config.outputPath = "/static/provedSVG/" + strings.TrimSuffix(basename, filepath.Ext(basename)) + ".svg"
 
+		CurrentConfigEntry = NewConfigEntry("TEST", config, userConfigKeys, userShapes)
 		Config = config
-		UserConfig = Config.toJson()
 		config.outputPath = "static/provedSVG/" + strings.TrimSuffix(basename, filepath.Ext(basename)) + ".svg"
 
-		svg := startVecart()
+		svg := startShapeArtGeneration()
 
 		svgFile, err := StaticAssets.Open(config.outputPath)
 		if err != nil {
@@ -47,9 +49,26 @@ func TestVecart(t *testing.T) {
 		}
 
 		if cleanString(content) != cleanString(svg) {
-			t.Errorf("Generating SVG from '%s' failed!", configPath)
+			stringComparison(content, svg)
+			t.Errorf("\nGenerating SVG from '%s' failed!", configPath)
 		}
 
 		resetStaticVariables()
+	}
+}
+
+func stringComparison(a, b string) {
+	fmt.Print("\n\n")
+	var linesA = strings.Split(a, "\n")
+	var linesB = strings.Split(b, "\n")
+
+	if len(linesA) != len(linesB) {
+		fmt.Printf("Different number of lines: A=%d, B=%d\n", len(linesA), len(linesB))
+	}
+
+	for i := 0; i < len(linesA) && i < len(linesB); i++ {
+		if linesA[i] != linesB[i] {
+			fmt.Printf("Line %d differs:\nA: %s\nB: %s\n\n", i+1, linesA[i], linesB[i])
+		}
 	}
 }
