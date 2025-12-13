@@ -1,0 +1,17 @@
+{
+    "outputPath": "/examples/hearts/ellie_hearts.svg",
+    "shapes": [
+        {
+            "type": "heart",
+            "size": 0.5
+        },
+        {
+            "type": "heart",
+            "size": 1
+        },
+        {
+            "type": "heart",
+            "size": 2
+        }
+    ]
+}

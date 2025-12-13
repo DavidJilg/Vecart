@@ -128,6 +128,13 @@ The following shapes are supported by Vecart and can be specified as shown in th
             "radius": 1
         }
     ```
+- Heart
+   ```json
+        {
+            "type": "heart",
+            "size": 1
+        }
+    ```
 - Text
    ```json
         {
@@ -421,6 +428,32 @@ The following examples illustrate some of the capabilities of Vecart. The corres
     ]
 }
 ```
+
+### Hearts
+<p align="center">
+<img src="examples/hearts/ellie_hearts.png" alt="drawing" width="50%"/>
+</p>
+
+```json
+{
+    "outputPath": "/examples/hearts/ellie_hearts.svg",
+    "shapes": [
+        {
+            "type": "heart",
+            "size": 0.5
+        },
+        {
+            "type": "heart",
+            "size": 1
+        },
+        {
+            "type": "heart",
+            "size": 2
+        }
+    ]
+}
+```
+
 
 ### Text
 <p align="center">
