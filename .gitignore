@@ -31,4 +31,10 @@ go.work.sum
 /deployment/ResourceHacker.ini
 /deployment/ResourceHacker.exe
 /deployment/tmp/
-/deployment/resourceHacker
+/deployment/resourceHacker/
+
+ellie.svg
+
+basic_shapes.gcode
+
+.gocache

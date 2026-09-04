@@ -1,6 +1,7 @@
 {
-    "inputPath": "/some/path/picture.png",
-	"outputPath": "/some/path/art.svg",  
+    "mode": "GCode",
+    "inputPath": "some/path/picture.png",
+	"outputPath": "some/path/art.svg",  
 	"artworkWidth": 1,  
 	"artworkHeight": 2, 
 	"quadrantWidth": 3,          
@@ -33,6 +34,35 @@
 	"timeout": 20,                  
     "shapeAngleDeviationRange": 16, 
     "shapeAngleDeviationStep": 17.5,
+    "sortGCode": false,
+    "keepSVGGroups": false,
+    "sortAxis": 0,
+    "feedRateXY": 99,
+    "feedRateZ": 99,
+    "bezierTolerance": 0.055,
+    "stampMode": true,
+    "refillTool": true,
+    "nrOfShapesWithoutRefill": 5,
+    "refillToolCommands": [
+        "G0 X5 Y5",
+        "G0 X5 Y5"
+    ],
+    "activateToolCommands": [
+        "G1 Z5",
+        "G1 Z5"
+    ],
+    "deactivateToolCommands": [
+        "G1 Z2",
+        "G1 Z2"
+    ],
+    "initialCommands": [
+        "G1 Z1",
+        "G1 Z1"
+    ],
+    "finalCommands": [
+        "G1 Z3",
+        "G1 Z3"
+    ],
 	"shapes": [
         {
             "type": "line",

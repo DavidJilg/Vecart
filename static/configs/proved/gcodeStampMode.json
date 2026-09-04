@@ -1,0 +1,25 @@
+{   
+    "mode": "GCode",
+    "inputPath": "../../svgTest/basic_shapes.svg",
+    "feedRateXY": 98,
+    "feedRateZ": 98,
+    "bezierTolerance": 0.01,
+    "stampMode": true,
+    "nrOfShapesWithoutRefill": 5,
+    "refillToolCommands": [
+        "G0 X5 Y5",
+        "G0 X5 Y5"
+    ],
+     "activateToolCommands": [
+        "G1 Z5"
+    ],
+    "deactivateToolCommands": [
+        "G1 Z1"
+    ],
+    "initialCommands": [
+        "G90", "G21"
+    ],
+    "finalCommands": [
+        "M2"
+    ]
+}

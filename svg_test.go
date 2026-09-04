@@ -5,10 +5,13 @@ import (
 	"path/filepath"
 	"strings"
 	"testing"
+
+	"github.com/DavidJilg/Vecart/internal/general"
+	"github.com/DavidJilg/Vecart/internal/utils"
 )
 
 func TestVecart(t *testing.T) {
-	TestMode = true
+	initForTests()
 
 	var configPaths []string
 	configPaths = append(configPaths, "static/configs/proved/circles.json")
@@ -17,58 +20,42 @@ func TestVecart(t *testing.T) {
 	configPaths = append(configPaths, "static/configs/proved/polygons.json")
 
 	for _, configPath := range configPaths {
-		config, userConfigKeys, userShapes, err := getConfigFromStaticAssets(configPath)
+		config, userConfigKeys, userShapes, err := general.GetConfigFromStaticAssets(configPath)
 		if err != nil {
 			fmt.Println(err)
 			panic("Could not get config '" + configPath + "' from static assets!")
 		}
-		config.shapeAngleDeviationStep = 30
-		config.processingDpi = 10
-		config.parallelRoutines = 1
-		config.randomSeed = 1701
-		config.overwriteExisting = true
+		config.ShapeAngleDeviationStep = 30
+		config.ProcessingDpi = 10
+		config.ParallelRoutines = 1
+		config.RandomSeed = 1701
+		config.OverwriteExisting = true
 		basename := filepath.Base(configPath)
-		config.outputPath = "/static/provedSVG/" + strings.TrimSuffix(basename, filepath.Ext(basename)) + ".svg"
+		config.OutputPath = "/static/provedSVG/" + strings.TrimSuffix(basename, filepath.Ext(basename)) + ".svg"
+		fixedOutputPath := "static/provedSVG/" + strings.TrimSuffix(basename, filepath.Ext(basename)) + ".svg"
 
-		CurrentConfigEntry = NewConfigEntry("TEST", config, userConfigKeys, userShapes)
-		Config = config
-		config.outputPath = "static/provedSVG/" + strings.TrimSuffix(basename, filepath.Ext(basename)) + ".svg"
+		general.SetConfig(config)
+		general.SetConfigEntry(general.NewConfigEntry("TEST", config, userConfigKeys, userShapes))
 
-		svg := startShapeArtGeneration()
+		svg := general.StartShapeArtGeneration()
 
-		svgFile, err := StaticAssets.Open(config.outputPath)
+		svgFile, err := StaticAssets.Open(fixedOutputPath)
 		if err != nil {
-			panic("Reading '" + config.outputPath + "' from static assets failed!")
+			panic("Reading '" + fixedOutputPath + "' from static assets failed!")
 		}
 
-		content, err := getFileContentsFromStaticAssets(svgFile)
+		content, err := utils.GetFileContentsFromStaticAssets(svgFile)
 
 		if err != nil {
 			fmt.Println(err)
-			panic("Could not read proved svg file '" + config.outputPath + "' from static ressources")
+			panic("Could not read proved svg file '" + config.OutputPath + "' from static ressources")
 		}
 
-		if cleanString(content) != cleanString(svg) {
-			stringComparison(content, svg)
+		if general.CleanString(content) != general.CleanString(svg) {
+			utils.StringComparison(content, svg)
 			t.Errorf("\nGenerating SVG from '%s' failed!", configPath)
 		}
 
-		resetStaticVariables()
-	}
-}
-
-func stringComparison(a, b string) {
-	fmt.Print("\n\n")
-	var linesA = strings.Split(a, "\n")
-	var linesB = strings.Split(b, "\n")
-
-	if len(linesA) != len(linesB) {
-		fmt.Printf("Different number of lines: A=%d, B=%d\n", len(linesA), len(linesB))
-	}
-
-	for i := 0; i < len(linesA) && i < len(linesB); i++ {
-		if linesA[i] != linesB[i] {
-			fmt.Printf("Line %d differs:\nA: %s\nB: %s\n\n", i+1, linesA[i], linesB[i])
-		}
+		general.ResetStaticVariables()
 	}
 }
