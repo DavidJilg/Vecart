@@ -45,6 +45,11 @@ func WriteStringToFile(content, path string) {
 	writer.WriteString(content)
 }
 
+func FileExists(filePath string) bool {
+	_, err := GetFileContentsFromFilePath(filePath)
+	return err == nil
+}
+
 func GetFileContentsFromFilePath(filePath string) (string, error) {
 	content, err := GetFileContentsFromRelativeFilePath(filePath)
 	if err == nil {

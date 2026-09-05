@@ -336,21 +336,20 @@ func runIteration(configEntry ConfigEntry) {
 		return
 	}
 
-	if fileExists(Config.OutputPath) && !Config.OverwriteExisting {
+	if utils.FileExists(Config.OutputPath) && !Config.OverwriteExisting {
 		basePath := Config.OutputPath[:strings.LastIndex(Config.OutputPath, ".")]
 		index := 2
-		for fileExists(Config.OutputPath) {
-			Config.OutputPath = basePath + "_" + strconv.FormatInt(int64(index), 10) + ".svg"
+		for utils.FileExists(Config.OutputPath) {
+			if Config.Mode == GCode {
+				Config.OutputPath = basePath + "_" + strconv.FormatInt(int64(index), 10) + ".gcode"
+			} else {
+				Config.OutputPath = basePath + "_" + strconv.FormatInt(int64(index), 10) + ".svg"
+			}
 			index++
 		}
 	}
 	utils.WriteStringToFile(fileContent, Config.OutputPath)
 
-}
-
-func fileExists(filePath string) bool {
-	_, err := utils.GetFileContentsFromRelativeFilePath(filePath)
-	return err == nil
 }
 
 func confirmContinuationWithInvalidConfig() bool {

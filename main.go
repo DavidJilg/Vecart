@@ -8,7 +8,7 @@ import (
 	"github.com/DavidJilg/Vecart/internal/utils"
 )
 
-const Version = "2.1.0"
+const Version = "2.1.1"
 
 //go:embed all:static
 var StaticAssets embed.FS
